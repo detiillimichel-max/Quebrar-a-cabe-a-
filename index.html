@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quebra-Cabeça das Fases</title>
+  <meta name="description" content="Jogo de quebra-cabeça de imagens com fases, níveis de dificuldade, cronômetro, contador de movimentos e dicas.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topo">
+    <div class="marca">
+      <span class="marca-icone" aria-hidden="true">🧩</span>
+      <h1 data-testid="game-title">Quebra-Cabeça <span>das Fases</span></h1>
+    </div>
+    <button id="btnSom" class="icone-btn" type="button" aria-pressed="true" aria-label="Som ligado" data-testid="sound-toggle-btn">🔊</button>
+  </header>
+
+  <main>
+    <!-- ===================== TELA DE MENU ===================== -->
+    <section id="telaMenu" class="tela ativa" data-testid="start-screen">
+      <div class="painel intro">
+        <p class="sobretitulo">Monte as imagens e avance de fase</p>
+        <h2>1. Escolha a dificuldade</h2>
+        <div class="dificuldades" role="radiogroup" aria-label="Dificuldade" data-testid="difficulty-selector">
+          <button class="dif" type="button" role="radio" data-n="3" data-testid="diff-3x3-btn">
+            <strong>Fácil</strong><span>3 × 3 · 9 peças</span>
+          </button>
+          <button class="dif" type="button" role="radio" data-n="4" data-testid="diff-4x4-btn">
+            <strong>Médio</strong><span>4 × 4 · 16 peças</span>
+          </button>
+          <button class="dif" type="button" role="radio" data-n="5" data-testid="diff-5x5-btn">
+            <strong>Difícil</strong><span>5 × 5 · 25 peças</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="fases-cabecalho">
+        <h2>2. Escolha a fase</h2>
+        <p id="progressoTexto" class="progresso-texto" data-testid="progress-text">0 de 6 fases concluídas</p>
+      </div>
+      <div id="listaFases" class="fases" data-testid="stage-selector"></div>
+
+      <button id="btnApagar" class="link-btn" type="button" data-testid="reset-progress-button">Apagar progresso</button>
+    </section>
+
+    <!-- ===================== TELA DO JOGO ===================== -->
+    <section id="telaJogo" class="tela" data-testid="game-screen">
+      <div class="jogo-topo">
+        <button id="btnVoltar" class="btn btn-fantasma" type="button" data-testid="back-to-menu-button">← Fases</button>
+        <div class="jogo-titulo">
+          <span id="hudFase" class="sobretitulo" data-testid="stage-label">Fase 1 de 6</span>
+          <strong id="hudNome" data-testid="stage-title">Lago das Montanhas</strong>
+        </div>
+      </div>
+
+      <div class="jogo-layout">
+        <div class="area-tabuleiro">
+          <div id="tabuleiro" class="tabuleiro n3" role="grid" aria-label="Tabuleiro do quebra-cabeça" data-testid="puzzle-board"></div>
+          <p id="mensagem" class="mensagem" aria-live="polite" data-testid="hint-message">Toque em uma peça e depois em outra para trocá-las.</p>
+        </div>
+
+        <aside class="painel lateral">
+          <div class="stats">
+            <div class="stat">
+              <span class="rotulo">Tempo</span>
+              <span id="tempo" class="valor" data-testid="timer-display">00:00</span>
+            </div>
+            <div class="stat">
+              <span class="rotulo">Movimentos</span>
+              <span id="movimentos" class="valor" data-testid="moves-counter">0</span>
+            </div>
+            <div class="stat">
+              <span class="rotulo">Corretas</span>
+              <span id="corretas" class="valor" data-testid="correct-counter">0/9</span>
+            </div>
+          </div>
+          <div class="barra" aria-hidden="true"><div id="barraProgresso" class="barra-preenchida"></div></div>
+
+          <div class="acoes">
+            <button id="btnDica" class="btn btn-amarelo" type="button" data-testid="hint-button">💡 Dica <span id="dicasRestantes" class="contador" data-testid="hints-left">3</span></button>
+            <button id="btnVer" class="btn btn-azul" type="button" data-testid="preview-image-button">🖼️ Ver imagem original</button>
+            <button id="btnEmbaralhar" class="btn btn-fantasma" type="button" data-testid="restart-button">↻ Embaralhar de novo</button>
+          </div>
+
+          <div class="miniatura">
+            <span class="rotulo">Objetivo</span>
+            <img id="imgMiniatura" src="" alt="Miniatura da imagem completa" data-testid="goal-thumbnail">
+          </div>
+
+          <p class="ajuda">Arraste uma peça até outra para trocá-las, ou toque em duas peças. As peças no lugar certo ganham um <b class="verde">✓</b>.</p>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="rodape">Feito com HTML, CSS e JavaScript · Quebra-Cabeça das Fases</footer>
+
+  <!-- ===================== MODAL: IMAGEM ORIGINAL ===================== -->
+  <div id="modalImagem" class="modal" hidden data-testid="preview-modal">
+    <div class="modal-caixa" role="dialog" aria-modal="true" aria-labelledby="tituloImagem">
+      <div class="modal-cabecalho">
+        <h3 id="tituloImagem">Imagem original</h3>
+        <button id="btnFecharImagem" class="icone-btn pequeno" type="button" aria-label="Fechar" data-testid="preview-modal-close">✕</button>
+      </div>
+      <img id="imgOriginal" class="img-original" src="" alt="Imagem completa da fase" data-testid="preview-modal-image">
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: VITÓRIA ===================== -->
+  <div id="modalVitoria" class="modal" hidden data-testid="victory-modal">
+    <div class="modal-caixa vitoria" role="dialog" aria-modal="true" aria-labelledby="tituloVitoria">
+      <div class="trofeu" aria-hidden="true">🏆</div>
+      <h3 id="tituloVitoria" data-testid="victory-title">Fase concluída!</h3>
+      <p id="subtituloVitoria" class="subtitulo" data-testid="victory-subtitle">Muito bem!</p>
+      <div id="estrelasVitoria" class="estrelas grandes" data-testid="victory-stars"></div>
+      <span id="novoRecorde" class="selo" hidden data-testid="new-record-badge">Novo recorde!</span>
+      <div class="stats resumo">
+        <div class="stat"><span class="rotulo">Tempo</span><span id="vitTempo" class="valor" data-testid="victory-time">00:00</span></div>
+        <div class="stat"><span class="rotulo">Movimentos</span><span id="vitMov" class="valor" data-testid="victory-moves">0</span></div>
+        <div class="stat"><span class="rotulo">Dicas</span><span id="vitDicas" class="valor" data-testid="victory-hints">0</span></div>
+      </div>
+      <div class="acoes">
+        <button id="btnProxima" class="btn btn-verde" type="button" data-testid="victory-next-stage-btn">Próxima fase →</button>
+        <button id="btnRepetir" class="btn btn-fantasma" type="button" data-testid="victory-replay-btn">↻ Jogar de novo</button>
+        <button id="btnMenu" class="btn btn-fantasma" type="button" data-testid="victory-menu-btn">Escolher fase</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confete" class="confete" aria-hidden="true"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
